@@ -40,8 +40,18 @@ exports.handler = async (event, context, callback) => {
         if (massPeople.length <= parseInt(process.env.MASS_SCHEDULE_LIMIT) && 
                 !personMasses.find(m => m.uuid === massId) && 
                 !massPeople.find(p => p.uuid === personId)) {
-            const newPersonMasses = [...personMasses, mass];
-            const newMassPeople = [...massPeople, person];
+            const newPersonMasses = [...personMasses, {
+                uuid : mass.uuid,
+                date: mass.date
+            }];
+            const newMassPeople = [...massPeople, {
+                name : person.name,
+                email : person.email,
+                phone : person.phone,
+                isParishioner : person.isParishioner || false,
+                uuid : person.uuid,
+                scheduledAt : new Date().toISOString(),
+            }];
 
             await awsService.dynamodb.updateItem(
                 process.env.PERSON_TABLE_NAME,

@@ -38,7 +38,6 @@ exports.handler = async (event, context, callback) => {
     }
     //Criar as missas para sábado
     else if (currDate.getDay() === 6) {
-
         itemsToInsert.push({
             uuid: uuid.v1(),
             date: new Date(currDate.getUTCFullYear(), currDate.getUTCMonth(), currDate.getUTCDate(), 17, 0, 0).toISOString(),
@@ -53,5 +52,5 @@ exports.handler = async (event, context, callback) => {
         const response = await awsService.dynamodb.putItem(tableName, item);
     }
 
-    callback(null, null);
+    callback(null, itemsToInsert.map(m=>m.uuid));
 };
