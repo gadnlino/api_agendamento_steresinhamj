@@ -24,7 +24,8 @@ exports.handler = async (event, context, callback) => {
     let person = {
         name,
         email,
-        phone
+        phone,
+        scheduledAt : new Date().toISOString()
     };
 
     const massPeople = mass.people || [];
