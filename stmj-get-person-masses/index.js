@@ -1,26 +1,33 @@
 const awsService = require("./services/awsService.js");
 
 exports.handler = async (event, context, callback) => {
-    const { personId } = event;
+    const { email } = event;
 
-    const queryResp = await awsService.dynamodb.queryItems(
-        process.env.PERSON_TABLE_NAME,
-        "#id = :value",
-        { "#id": "uuid" },
-        { ":value": personId }
-    );
+    const queryResp = await awsService.dynamodb.scan(process.env.MASS_TABLE_NAME);
 
-    const person = queryResp.Items[0];
+    const personMasses = [];
 
-    let error;
-    let data;
+    queryResp.Items.forEach(mass=>{
+        mass.people.forEach(person=>{
+            if(person.email && person.email.toLowerCase() === email.toLowerCase()){
+                personMasses.push({uuid: mass.uuid, date: mass.date});
+            }
+        });
+    });
 
-    if (!person) {
-        error = new Error('Could not find person with id=' + personId);
-    }
-    else {
-        data = person.masses || [];
-    }
+    personMasses.sort((a,b)=>{
+        const date1 = new Date(a.date);
+        const date2 = new Date(b.date);
 
-    callback(error, data);
+        if(date1 > date2){
+            return -1
+        }
+        else if(date1 < date2){
+            return 1
+        }
+
+        return 0;
+    });
+
+    callback(null, personMasses);
 }
