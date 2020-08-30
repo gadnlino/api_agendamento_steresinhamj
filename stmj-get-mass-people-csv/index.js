@@ -33,5 +33,5 @@ exports.handler = async (event, context, callback) => {
     let buff = Buffer.from(csv);
     let base64data = buff.toString('base64');
 
-    callback(error, base64data);
+    callback(error, {data: base64data});
 }
