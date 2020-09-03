@@ -26,7 +26,7 @@ exports.handler = async (event, context, callback) => {
             uuid: uuid.v1(),
             date: new Date(currDate.getUTCFullYear(), currDate.getUTCMonth(), currDate.getUTCDate(), 9, 0, 0).toISOString(),
             people: [],
-            totalVacancies: totalVacancies
+            totalVacancies: 67
         });
 
         itemsToInsert.push({
