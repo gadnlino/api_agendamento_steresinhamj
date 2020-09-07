@@ -27,6 +27,10 @@ exports.handler = async (event, context, callback) => {
                 component: "scheduleManually",
                 type: "write"
             },
+            {
+                component: "cancelThirdSchedulings",
+                type: "write"
+            }
         ];
     }
 

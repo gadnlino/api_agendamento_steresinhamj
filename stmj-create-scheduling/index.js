@@ -1,7 +1,7 @@
 const awsService = require("./services/awsService.js");
 
 exports.handler = async (event, context, callback) => {
-    const { massId, name, email, phone } = event;
+    const { massId, name, email, phone, scheduledBy } = event;
 
     const queryRespMass = await awsService.dynamodb.queryItems(
         process.env.MASS_TABLE_NAME,
@@ -27,6 +27,7 @@ exports.handler = async (event, context, callback) => {
                 email,
                 phone,
                 scheduledAt: new Date().toISOString(),
+                scheduledBy
             }];
 
             await awsService.dynamodb.updateItem(
