@@ -1,16 +1,32 @@
 const awsService = require("./services/awsService.js");
 
-exports.handler = async (event, context, callback)=>{
+exports.handler = async (event, context, callback) => {
 
-    console.log(event);
+    const person = JSON.parse(event.body);
 
     const tableName = process.env.PERSON_TABLE_NAME;
 
-    const response = await awsService.dynamodb.putItem(tableName, event);
+    try {
+        const response = await awsService.dynamodb.putItem(tableName, person);
 
-    callback(null, {
-        statusCode : response.$response.statusCode,
-        data: response.$response.data,
-        error: response.$response.error
-    });
+        if (response.$response.error) {
+            callback(null, {
+                statusCode: 500,
+                body: JSON.stringify(response.$response.error)
+            });
+        }
+        else {
+            callback(null, {
+                statusCode: 200,
+                body: JSON.stringify(response.$response.data)
+            });
+        }
+    }
+    catch (e) {
+        callback(null, {
+            statusCode: 500,
+            body: JSON.stringify(e)
+        });
+    }
+
 }

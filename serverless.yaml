@@ -1,0 +1,165 @@
+service: api-stmj
+
+frameworkVersion: "2"
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  profile: serverless-admin-paroquia
+  memorySize: 256
+  timeout: 6
+  environment:
+    MASS_TABLE_NAME: stmj_mass_${opt:stage, self:provider.stage}
+    PERSON_TABLE_NAME: stmj_person_${opt:stage, self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.MASS_TABLE_NAME}"
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.PERSON_TABLE_NAME}"
+
+functions:
+  create-mass:
+    handler: stmj-create-mass/index.handler
+    events:
+      - http:
+          path: "mass"
+          method: post
+          cors: true
+
+  create-masses-at-date:
+    handler: stmj-create-masses-at-date/index.handler
+    events:
+      - http:
+          path: "mass/createatdate"
+          method: post
+          cors: true
+    environment:
+      TOTAL_VACANCIES: "69"
+
+  create-person:
+    handler: stmj-create-person/index.handler
+    events:
+      - http:
+          path: "person"
+          method: post
+          cors: true
+
+  create-scheduling:
+    handler: stmj-create-scheduling/index.handler
+    events:
+      - http:
+          path: "scheduling"
+          method: post
+          cors: true
+
+  delete-scheduling:
+    handler: stmj-delete-scheduling/index.handler
+    events:
+      - http:
+          path: "scheduling/delete"
+          method: post
+          cors: true
+
+  get-mass:
+    handler: stmj-get-mass/index.handler
+    events:
+      - http:
+          path: "mass/{massId}"
+          method: get
+          cors: true
+
+  get-masses-by-date-range:
+    handler: stmj-get-masses-by-date-range/index.handler
+    events:
+      - http:
+          path: "mass"
+          method: get
+          cors: true
+
+  get-mass-people:
+    handler: stmj-get-mass-people/index.handler
+    events:
+      - http:
+          path: "mass/{massId}/people"
+          method: get
+          cors: true
+
+  get-mass-people-xlsx:
+    handler: stmj-get-mass-people-xlsx/index.handler
+    events:
+      - http:
+          path: "mass/{massId}/people/xlsx"
+          method: get
+          cors: true
+
+  get-permissions:
+    handler: stmj-get-permissions/index.handler
+    events:
+      - http:
+          path: "permissions"
+          method: get
+          cors: true
+    environment:
+      ADMINS: "[\"guiavenas@gmail.com\"]"      
+
+  get-person-by-email:
+    handler: stmj-get-person-by-email/index.handler
+    events:
+      - http:
+          path: "person/email/{email}"
+          method: get
+          cors: true
+
+  get-person-masses:
+    handler: stmj-get-person-masses/index.handler
+    events:
+      - http:
+          path: "person/email/{email}/masses"
+          method: get
+          cors: true
+
+resources:
+  Resources:
+    MassTable:
+      Type: "AWS::DynamoDB::Table"
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: uuid
+            AttributeType: S
+        KeySchema:
+          - AttributeName: uuid
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+        TableName: ${self:provider.environment.MASS_TABLE_NAME}
+
+    PersonTable:
+      Type: "AWS::DynamoDB::Table"
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: uuid
+            AttributeType: S
+        KeySchema:
+          - AttributeName: uuid
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+        TableName: ${self:provider.environment.PERSON_TABLE_NAME}

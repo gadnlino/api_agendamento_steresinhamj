@@ -1,5 +1,5 @@
 {
-  "name": "stmj-create-scheduling",
+  "name": "stmj-get-mass",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.726.0",
-    "uuid": "^8.3.0"
+    "aws-sdk": "^2.727.1"
   }
 }

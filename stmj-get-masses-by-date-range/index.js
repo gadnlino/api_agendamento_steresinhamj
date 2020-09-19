@@ -5,9 +5,9 @@ exports.handler = async (event, context, callback) => {
     console.log(JSON.stringify(event));
 
     try {
-        const { massId } = event.pathParameters || {};
+        const { start_date, end_date } = event.queryStringParameters || {};
 
-        if (!massId) {
+        if (!start_date && !end_date) {
             callback(null, {
                 statusCode: 400
             });
@@ -15,18 +15,19 @@ exports.handler = async (event, context, callback) => {
         else {
             const queryResp = await awsService.dynamodb.queryItems(
                 process.env.MASS_TABLE_NAME,
-                "#id = :value",
-                { "#id": "uuid" },
-                { ":value": massId }
+                "#key BETWEEN :value1 AND :value2",
+                { "#key": "date" },
+                {
+                    ":value1": start_date,
+                    ":value2": end_date
+                }
             );
 
-            const mass = queryResp.Items[0];
 
-
-            callback(null, mass ? {
+            callback(null, {
                 statusCode: 200,
-                body: JSON.stringify()
-            } : { statusCode: 204 });
+                body: JSON.stringify(queryResp.Items)
+            });
         }
     }
     catch (e) {

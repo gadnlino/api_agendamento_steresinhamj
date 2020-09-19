@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.729.0",
     "cross-blob": "^2.0.0",
     "node-xlsx": "^0.15.0"
   }

@@ -1,26 +1,43 @@
 const awsService = require("./services/awsService.js");
 
 exports.handler = async (event, context, callback) => {
-    const { massId } = event;
+    try {
+        const { massId } = event.pathParameters || {};
 
-    const queryResp = await awsService.dynamodb.queryItems(
-        process.env.MASS_TABLE_NAME,
-        "#id = :value",
-        { "#id": "uuid" },
-        { ":value": massId }
-    );
+        if (!massId) {
+            callback(null, {
+                statusCode: 400,
+            });
+        }
+        else {
+            const queryResp = await awsService.dynamodb.queryItems(
+                process.env.MASS_TABLE_NAME,
+                "#id = :value",
+                { "#id": "uuid" },
+                { ":value": massId }
+            );
 
-    const mass = queryResp.Items[0];
+            const mass = queryResp.Items[0];
 
-    let error;
-    let data;
-
-    if (!mass) {
-        error = new Error('Could not find mass with id=' + massId);
+            if (!mass) {
+                callback(null, {
+                    statusCode: 404,
+                    body: 'Could not find mass with id=' + massId
+                });
+            }
+            else {
+                callback(null, {
+                    statusCode: 200,
+                    body: JSON.stringify(mass.people || [])
+                });
+            }
+        }
     }
-    else {
-        data = mass.people || [];
+    catch (e) {
+        console.log(e);
+        callback(null, {
+            statusCode: 500,
+            body: JSON.stringify(e)
+        });
     }
-
-    callback(error, data);
 }
