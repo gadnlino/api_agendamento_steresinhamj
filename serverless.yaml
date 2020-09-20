@@ -39,6 +39,7 @@ functions:
           path: "mass"
           method: post
           cors: true
+          authorizer: aws_iam
 
   create-masses-at-date:
     handler: stmj-create-masses-at-date/index.handler
@@ -47,6 +48,7 @@ functions:
           path: "mass/createatdate"
           method: post
           cors: true
+          authorizer: aws_iam
     environment:
       TOTAL_VACANCIES: "69"
 
@@ -57,6 +59,7 @@ functions:
           path: "person"
           method: post
           cors: true
+          authorizer: aws_iam
 
   create-scheduling:
     handler: stmj-create-scheduling/index.handler
@@ -65,6 +68,7 @@ functions:
           path: "scheduling"
           method: post
           cors: true
+          authorizer: aws_iam
 
   delete-scheduling:
     handler: stmj-delete-scheduling/index.handler
@@ -73,6 +77,7 @@ functions:
           path: "scheduling/delete"
           method: post
           cors: true
+          authorizer: aws_iam
 
   get-mass:
     handler: stmj-get-mass/index.handler
@@ -81,6 +86,7 @@ functions:
           path: "mass/{massId}"
           method: get
           cors: true
+          authorizer: aws_iam
 
   get-masses-by-date-range:
     handler: stmj-get-masses-by-date-range/index.handler
@@ -89,6 +95,7 @@ functions:
           path: "mass"
           method: get
           cors: true
+          authorizer: aws_iam
 
   get-mass-people:
     handler: stmj-get-mass-people/index.handler
@@ -97,6 +104,7 @@ functions:
           path: "mass/{massId}/people"
           method: get
           cors: true
+          authorizer: aws_iam
 
   get-mass-people-xlsx:
     handler: stmj-get-mass-people-xlsx/index.handler
@@ -105,6 +113,7 @@ functions:
           path: "mass/{massId}/people/xlsx"
           method: get
           cors: true
+          authorizer: aws_iam
 
   get-permissions:
     handler: stmj-get-permissions/index.handler
@@ -113,6 +122,7 @@ functions:
           path: "permissions"
           method: get
           cors: true
+          authorizer: aws_iam
     environment:
       ADMINS: "[\"guiavenas@gmail.com\"]"      
 
@@ -123,14 +133,16 @@ functions:
           path: "person/email/{email}"
           method: get
           cors: true
+          authorizer: aws_iam
 
   get-person-masses:
     handler: stmj-get-person-masses/index.handler
     events:
       - http:
-          path: "person/email/{email}/masses"
+          path: "person/masses"
           method: get
           cors: true
+          authorizer: aws_iam
 
 resources:
   Resources:

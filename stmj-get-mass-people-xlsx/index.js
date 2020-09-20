@@ -4,8 +4,8 @@ const xlsx = require('node-xlsx').default;
 function buildDate(dateString) {
     const date = new Date(dateString);
     const yyyy = date.getUTCFullYear();
-    const MM = date.getUTCMonth();
-    const dd = date.getUTCDay();
+    const MM = date.getUTCMonth() + 1;
+    const dd = date.getDate();
 
     const hh = date.getUTCHours();
     const mm = date.getUTCMinutes();

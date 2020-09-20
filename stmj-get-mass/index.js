@@ -22,10 +22,9 @@ exports.handler = async (event, context, callback) => {
 
             const mass = queryResp.Items[0];
 
-
             callback(null, mass ? {
                 statusCode: 200,
-                body: JSON.stringify()
+                body: JSON.stringify(mass)
             } : { statusCode: 204 });
         }
     }

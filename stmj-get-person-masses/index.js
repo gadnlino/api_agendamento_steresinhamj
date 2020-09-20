@@ -2,7 +2,7 @@ const awsService = require("./services/awsService.js");
 
 exports.handler = async (event, context, callback) => {
     try {
-        const { email } = event.pathParameters;
+        const { email } = event.queryStringParameters || {};
 
         if (email) {
             const queryResp = await awsService.dynamodb.scan(process.env.MASS_TABLE_NAME);
