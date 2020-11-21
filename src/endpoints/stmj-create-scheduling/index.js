@@ -1,61 +1,134 @@
 const awsService = require("../../services/awsService.js");
 
-exports.handler = async (event, context, callback) => {
+const AWS = require("aws-sdk");
+const DynamoDBLockClient = require("dynamodb-lock-client");
 
+const dynamodb = new AWS.DynamoDB.DocumentClient(
+    {
+        region: process.env.AWS_REGION
+    }
+);
+
+exports.handler = async (event, context, callback) => {
     try {
+
+        console.log(event);
+
         const scheduling = JSON.parse(event.body);
         const { massId, name, email, phone, scheduledBy } = scheduling;
 
-        const queryRespMass = await awsService.dynamodb.queryItems(
-            process.env.MASS_TABLE_NAME,
-            "#id = :value",
-            { "#id": "uuid" },
-            { ":value": massId }
+        const failOpenClient = new DynamoDBLockClient.FailOpen(
+            {
+                dynamodb,
+                lockTable: process.env.LOCK_TABLE_NAME,
+                partitionKey: "id",
+                heartbeatPeriodMs: 3e3,
+                leaseDurationMs: 1e4
+            }
         );
 
-        const mass = queryRespMass.Items[0];
+        const lockName = `lock_${massId}`;
 
-        let error;
+        function tryCreateScheduling() {
+            return new Promise(resolve => {
+                failOpenClient.acquireLock(lockName, async (error, lock) => {
 
-        if (!mass) {
-            callback(null, {
-                statusCode: 500,
-                body: 'Could not find mass with id=' + massId
-            });
-        }
-        else {
-            const massPeople = mass.people || [];
-            
-            if (massPeople.length <= mass.totalVacancies &&
-                !massPeople.find(p => p.email.toLowerCase() === email.toLowerCase())) {
+                    function tryReleaseLock(){
+                        return new Promise((resolve, reject)=>{
+                            lock.release(error=>{
 
-                const personOrder = {
-                    name,
-                    email,
-                    phone,
-                    scheduledAt: new Date().toISOString(),
-                    scheduledBy
-                };
+                                if(error){
+                                    console.error(error);
+                                    reject(error);
+                                }
+                                else{
+                                    console.log("released fail open lock");
+                                    resolve();
+                                }
+                            });
+                        });
+                    }
 
-                const newMassPeople = [...massPeople, personOrder];
+                    if (error) {
+                        console.log(error);
 
-                await awsService.dynamodb.updateItem(
-                    process.env.MASS_TABLE_NAME,
-                    { "uuid": massId },
-                    "set people = :value",
-                    { ":value": newMassPeople }
-                );
+                        await tryReleaseLock();
 
-                callback(null, {
-                    statusCode: 200,
-                    body: JSON.stringify(personOrder)
+                        resolve({
+                            statusCode: 500,
+                            body: JSON.stringify(error)
+                        });
+                    }
+                    else {
+                        console.log("acquired fail open lock");
+                        // do stuff
+                        const queryRespMass = await awsService.dynamodb.queryItems(
+                            process.env.MASS_TABLE_NAME,
+                            "#id = :value",
+                            { "#id": "uuid" },
+                            { ":value": massId }
+                        );
+
+                        const mass = queryRespMass.Items[0];
+
+                        if (!mass) {
+                            await tryReleaseLock();
+
+                            resolve({
+                                statusCode: 400,
+                                body: 'Could not find mass with id=' + massId
+                            });
+                        }
+                        else {
+                            const massPeople = mass.people || [];
+
+                            if (massPeople.length <= mass.totalVacancies &&
+                                !massPeople.find(p =>
+                                    p.email.toLowerCase() === email.toLowerCase())) {
+
+                                const personOrder = {
+                                    name,
+                                    email,
+                                    phone,
+                                    scheduledAt: new Date().toISOString(),
+                                    scheduledBy
+                                };
+
+                                const newMassPeople = [...massPeople, personOrder];
+
+                                await awsService.dynamodb.updateItem(
+                                    process.env.MASS_TABLE_NAME,
+                                    { "uuid": massId },
+                                    "set people = :value",
+                                    { ":value": newMassPeople }
+                                );
+
+                                await tryReleaseLock();
+
+                                resolve({
+                                    statusCode: 200,
+                                    body: JSON.stringify(personOrder)
+                                });
+                            }
+                            else {
+                                await tryReleaseLock();
+
+                                resolve({
+                                    statusCode: 409,
+                                    body: `Já está agendado ou todas as vagas da missa com id=${massId} já foram ocupadas`
+                                });
+                            }
+                        }
+                    }
                 });
-            }
-
-            callback(error, {
-                statusCode: 409
             });
         }
+
+        const response = await tryCreateScheduling();
+
+        console.log("response ",response);
+
+        callback(null, response);
     }
     catch (e) {
         console.log(e);
@@ -64,5 +137,4 @@ exports.handler = async (event, context, callback) => {
             body: JSON.stringify(e)
         })
     }
-
 }
