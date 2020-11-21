@@ -1,0 +1,28 @@
+{
+  "name": "api_agendamento_steresinhamj",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gadnlino/api_agendamento_steresinhamj.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gadnlino/api_agendamento_steresinhamj/issues"
+  },
+  "homepage": "https://github.com/gadnlino/api_agendamento_steresinhamj#readme",
+  "dependencies": {
+    "uuid": "^8.3.0",
+    "dynamodb-lock-client": "^0.7.2",
+    "cross-blob": "^2.0.0",
+    "node-xlsx": "^0.15.0"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.727.1"
+  }
+}

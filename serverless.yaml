@@ -7,10 +7,11 @@ provider:
   runtime: nodejs10.x
   profile: serverless-admin-paroquia
   memorySize: 256
-  timeout: 6
+  timeout: 30
   environment:
     MASS_TABLE_NAME: stmj_mass_${opt:stage, self:provider.stage}
     PERSON_TABLE_NAME: stmj_person_${opt:stage, self:provider.stage}
+    LOCK_TABLE_NAME: distributed_locks_store_${opt:stage, self:provider.stage}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -33,7 +34,7 @@ provider:
 
 functions:
   create-mass:
-    handler: stmj-create-mass/index.handler
+    handler: src/endpoints/stmj-create-mass/index.handler
     events:
       - http:
           path: "mass"
@@ -42,7 +43,7 @@ functions:
           authorizer: aws_iam
 
   create-masses-at-date:
-    handler: stmj-create-masses-at-date/index.handler
+    handler: src/endpoints/stmj-create-masses-at-date/index.handler
     events:
       - http:
           path: "mass/createatdate"
@@ -53,7 +54,7 @@ functions:
       TOTAL_VACANCIES: "69"
 
   create-person:
-    handler: stmj-create-person/index.handler
+    handler: src/endpoints/stmj-create-person/index.handler
     events:
       - http:
           path: "person"
@@ -62,7 +63,7 @@ functions:
           authorizer: aws_iam
 
   create-scheduling:
-    handler: stmj-create-scheduling/index.handler
+    handler: src/endpoints/stmj-create-scheduling/index.handler
     events:
       - http:
           path: "scheduling"
@@ -71,7 +72,7 @@ functions:
           authorizer: aws_iam
 
   delete-scheduling:
-    handler: stmj-delete-scheduling/index.handler
+    handler: src/endpoints/stmj-delete-scheduling/index.handler
     events:
       - http:
           path: "scheduling/delete"
@@ -80,7 +81,7 @@ functions:
           authorizer: aws_iam
 
   get-mass:
-    handler: stmj-get-mass/index.handler
+    handler: src/endpoints/stmj-get-mass/index.handler
     events:
       - http:
           path: "mass/{massId}"
@@ -89,7 +90,7 @@ functions:
           authorizer: aws_iam
 
   get-masses-by-date-range:
-    handler: stmj-get-masses-by-date-range/index.handler
+    handler: src/endpoints/stmj-get-masses-by-date-range/index.handler
     events:
       - http:
           path: "mass"
@@ -98,7 +99,7 @@ functions:
           authorizer: aws_iam
 
   get-mass-people:
-    handler: stmj-get-mass-people/index.handler
+    handler: src/endpoints/stmj-get-mass-people/index.handler
     events:
       - http:
           path: "mass/{massId}/people"
@@ -107,7 +108,7 @@ functions:
           authorizer: aws_iam
 
   get-mass-people-xlsx:
-    handler: stmj-get-mass-people-xlsx/index.handler
+    handler: src/endpoints/stmj-get-mass-people-xlsx/index.handler
     events:
       - http:
           path: "mass/{massId}/people/xlsx"
@@ -116,7 +117,7 @@ functions:
           authorizer: aws_iam
 
   get-permissions:
-    handler: stmj-get-permissions/index.handler
+    handler: src/endpoints/stmj-get-permissions/index.handler
     events:
       - http:
           path: "permissions"
@@ -124,10 +125,10 @@ functions:
           cors: true
           authorizer: aws_iam
     environment:
-      ADMINS: "[\"guiavenas@gmail.com\"]"      
+      ADMINS: '["guiavenas@gmail.com"]'
 
   get-person-by-email:
-    handler: stmj-get-person-by-email/index.handler
+    handler: src/endpoints/stmj-get-person-by-email/index.handler
     events:
       - http:
           path: "person/email/{email}"
@@ -136,7 +137,7 @@ functions:
           authorizer: aws_iam
 
   get-person-masses:
-    handler: stmj-get-person-masses/index.handler
+    handler: src/endpoints/stmj-get-person-masses/index.handler
     events:
       - http:
           path: "person/masses"
@@ -175,3 +176,17 @@ resources:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
         TableName: ${self:provider.environment.PERSON_TABLE_NAME}
+
+    DistributedLocksStore:
+      Type: "AWS::DynamoDB::Table"
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+        TableName: ${self:provider.environment.LOCK_TABLE_NAME}
