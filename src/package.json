@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy-dev": "npm install && serverless deploy -s dev -c ../serverless.yaml -v",
+    "remove-dev": "npm install && serverless remove -s dev -c ../serverless.yaml -v",
+    "deploy-uat": "npm install && serverless deploy -s uat -c ../serverless.yaml -v",
+    "deploy-prod": "npm install && serverless deploy -s prod -c ../serverless.yaml -v"
   },
   "repository": {
     "type": "git",
@@ -17,12 +21,13 @@
   },
   "homepage": "https://github.com/gadnlino/api_agendamento_steresinhamj#readme",
   "dependencies": {
-    "uuid": "^8.3.0",
-    "dynamodb-lock-client": "^0.7.2",
     "cross-blob": "^2.0.0",
-    "node-xlsx": "^0.15.0"
+    "dynamodb-lock-client": "^0.7.2",
+    "node-xlsx": "^0.15.0",
+    "uuid": "^8.3.0"
   },
   "devDependencies": {
-    "aws-sdk": "^2.727.1"
+    "aws-sdk": "^2.727.1",
+    "tsc": "^1.20150623.0"
   }
 }

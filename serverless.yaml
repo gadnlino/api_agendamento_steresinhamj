@@ -80,6 +80,15 @@ functions:
           cors: true
           authorizer: aws_iam
 
+  create-scheduling-batch:
+    handler: src/endpoints/stmj-create-scheduling-batch/index.handler
+    events:
+      - http:
+          path: "scheduling_batch"
+          method: post
+          cors: true
+          authorizer: aws_iam
+
   delete-scheduling:
     handler: src/endpoints/stmj-delete-scheduling/index.handler
     events:
