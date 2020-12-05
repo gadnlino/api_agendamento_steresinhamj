@@ -2,6 +2,13 @@ service: api-stmj
 
 frameworkVersion: "2"
 
+package:
+  individually: true
+  include:
+    - endpoints/**
+    - src/services/**
+    - src/node_modules/**
+
 provider:
   name: aws
   runtime: nodejs10.x
@@ -43,7 +50,7 @@ provider:
 
 functions:
   create-mass:
-    handler: src/endpoints/stmj-create-mass/index.handler
+    handler: endpoints/stmj-create-mass/index.handler
     events:
       - http:
           path: "mass"
@@ -52,7 +59,7 @@ functions:
           authorizer: aws_iam
 
   create-masses-at-date:
-    handler: src/endpoints/stmj-create-masses-at-date/index.handler
+    handler: endpoints/stmj-create-masses-at-date/index.handler
     events:
       - http:
           path: "mass/createatdate"
@@ -63,7 +70,7 @@ functions:
       TOTAL_VACANCIES: "69"
 
   create-person:
-    handler: src/endpoints/stmj-create-person/index.handler
+    handler: endpoints/stmj-create-person/index.handler
     events:
       - http:
           path: "person"
@@ -72,7 +79,7 @@ functions:
           authorizer: aws_iam
 
   create-scheduling:
-    handler: src/endpoints/stmj-create-scheduling/index.handler
+    handler: endpoints/stmj-create-scheduling/index.handler
     events:
       - http:
           path: "scheduling"
@@ -81,7 +88,7 @@ functions:
           authorizer: aws_iam
 
   create-scheduling-batch:
-    handler: src/endpoints/stmj-create-scheduling-batch/index.handler
+    handler: endpoints/stmj-create-scheduling-batch/index.handler
     events:
       - http:
           path: "scheduling_batch"
@@ -90,7 +97,7 @@ functions:
           authorizer: aws_iam
 
   delete-scheduling:
-    handler: src/endpoints/stmj-delete-scheduling/index.handler
+    handler: endpoints/stmj-delete-scheduling/index.handler
     events:
       - http:
           path: "scheduling/delete"
@@ -99,7 +106,7 @@ functions:
           authorizer: aws_iam
 
   get-mass:
-    handler: src/endpoints/stmj-get-mass/index.handler
+    handler: endpoints/stmj-get-mass/index.handler
     events:
       - http:
           path: "mass/{massId}"
@@ -108,7 +115,7 @@ functions:
           authorizer: aws_iam
 
   get-masses-by-date-range:
-    handler: src/endpoints/stmj-get-masses-by-date-range/index.handler
+    handler: endpoints/stmj-get-masses-by-date-range/index.handler
     events:
       - http:
           path: "mass"
@@ -117,7 +124,7 @@ functions:
           authorizer: aws_iam
 
   get-mass-people:
-    handler: src/endpoints/stmj-get-mass-people/index.handler
+    handler: endpoints/stmj-get-mass-people/index.handler
     events:
       - http:
           path: "mass/{massId}/people"
@@ -126,7 +133,7 @@ functions:
           authorizer: aws_iam
 
   get-mass-people-xlsx:
-    handler: src/endpoints/stmj-get-mass-people-xlsx/index.handler
+    handler: endpoints/stmj-get-mass-people-xlsx/index.handler
     events:
       - http:
           path: "mass/{massId}/people/xlsx"
@@ -135,7 +142,7 @@ functions:
           authorizer: aws_iam
 
   get-permissions:
-    handler: src/endpoints/stmj-get-permissions/index.handler
+    handler: endpoints/stmj-get-permissions/index.handler
     events:
       - http:
           path: "permissions"
@@ -146,7 +153,7 @@ functions:
       ADMINS: '["guiavenas@gmail.com"]'
 
   get-person-by-email:
-    handler: src/endpoints/stmj-get-person-by-email/index.handler
+    handler: endpoints/stmj-get-person-by-email/index.handler
     events:
       - http:
           path: "person/email/{email}"
@@ -155,7 +162,7 @@ functions:
           authorizer: aws_iam
 
   get-person-masses:
-    handler: src/endpoints/stmj-get-person-masses/index.handler
+    handler: endpoints/stmj-get-person-masses/index.handler
     events:
       - http:
           path: "person/masses"

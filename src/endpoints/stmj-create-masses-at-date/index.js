@@ -1,4 +1,4 @@
-const awsService = require("../../services/");
+const awsService = require("../../services/awsService.js");
 const uuid = require("uuid");
 
 Date.prototype.addDays = function (days) {
@@ -14,7 +14,8 @@ exports.handler = async (event, context, callback) => {
         let itemsToInsert = [];
         const totalVacancies = parseInt(process.env.TOTAL_VACANCIES)
 
-        const existantMassesScan = await awsService.dynamodb.scan(process.env.MASS_TABLE_NAME);
+        const existantMassesScan = 
+        await awsService.dynamodb.scan(process.env.MASS_TABLE_NAME);
 
         const existantMasses = existantMassesScan.Items;
 
